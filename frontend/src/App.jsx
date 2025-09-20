@@ -1,10 +1,22 @@
-import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 
-export default function App() {
+function App() {
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>✅ ISO9001 App</h1>
-      <p>Frontend corriendo con React + Vite</p>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        {/* Login */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Dashboard visual */}
+        <Route path="/dashboard" element={<Dashboard />} />
+
+        {/* Página inicial → redirige al Dashboard */}
+        <Route path="*" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
+
+export default App;
