@@ -1,14 +1,10 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
+import React from "react";
 
-function App() {
+export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-      </Routes>
-    </BrowserRouter>
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h1>✅ ISO9001 App</h1>
+      <p>Frontend corriendo con React + Vite</p>
+    </div>
   );
 }
-
-export default App;
