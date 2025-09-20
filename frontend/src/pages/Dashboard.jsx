@@ -6,21 +6,12 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-
-import {
-  LineChart,
-  Line,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
+  Legend,
   BarChart,
   Bar,
-  Legend,
+  ResponsiveContainer
 } from "recharts";
+
 
 
 export default function Dashboard() {
