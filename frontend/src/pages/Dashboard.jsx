@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   LineChart,
   Line,
@@ -9,93 +10,85 @@ import {
   Legend,
   BarChart,
   Bar,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from "recharts";
 
-
-
 export default function Dashboard() {
-  // Datos de ejemplo para auditorías ISO
-  const data = [
-    { name: "Ene", cumplimiento: 75 },
-    { name: "Feb", cumplimiento: 80 },
-    { name: "Mar", cumplimiento: 90 },
-    { name: "Abr", cumplimiento: 85 },
-    { name: "May", cumplimiento: 95 },
-  ];
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    axios.get("http://localhost:5000/api/dashboard") // ⚠️ Ajusta el puerto si tu backend usa otro
+      .then((res) => setData(res.data))
+      .catch((err) => console.error(err));
+  }, []);
+
+  if (!data) return <p className="p-6">⏳ Cargando datos...</p>;
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-64 h-screen bg-gray-800 text-white p-4">
-        <h2 className="text-xl font-bold mb-6">Panel ISO9001</h2>
-        <nav className="flex flex-col gap-2">
-          <Link to="/dashboard/training" className="hover:bg-gray-700 p-2 rounded">📘 Capacitación</Link>
-          <Link to="/dashboard/documents" className="hover:bg-gray-700 p-2 rounded">📂 Documentos</Link>
-          <Link to="/dashboard/audit" className="hover:bg-gray-700 p-2 rounded">✅ Auditorías</Link>
+      <aside className="w-64 bg-blue-800 text-white p-6">
+        <h2 className="text-2xl font-bold mb-6">ISO9001 App</h2>
+        <nav className="space-y-3">
+          <a href="#" className="block hover:text-blue-300">📊 Dashboard</a>
+          <a href="#" className="block hover:text-blue-300">📝 Auditorías</a>
+          <a href="#" className="block hover:text-blue-300">👤 Usuarios</a>
+          <a href="#" className="block hover:text-blue-300">⚙️ Configuración</a>
         </nav>
       </aside>
 
-      {/* Contenido */}
-      <main className="flex-1 p-6 bg-gray-100">
-        <h1 className="text-2xl font-bold mb-6">Dashboard de Auditoría</h1>
+      {/* Contenido principal */}
+      <main className="flex-1 p-8">
+        <h1 className="text-3xl font-bold mb-6">Panel de Control</h1>
 
-        {/* Cards resumen */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-lg font-semibold">📊 Auditorías realizadas</h2>
-            <p className="text-3xl font-bold mt-2">12</p>
-            <p className="text-sm text-gray-500">Últimos 6 meses</p>
+        {/* Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white shadow-md rounded-xl p-6 text-center">
+            <h3 className="text-lg font-semibold">Cumplimiento (%)</h3>
+            <p className="text-3xl font-bold text-green-600">{data.cumplimiento}%</p>
           </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-lg font-semibold">✅ Cumplimiento promedio</h2>
-            <p className="text-3xl font-bold mt-2">88%</p>
-            <p className="text-sm text-gray-500">Basado en proyectos</p>
+          <div className="bg-white shadow-md rounded-xl p-6 text-center">
+            <h3 className="text-lg font-semibold">Auditorías</h3>
+            <p className="text-3xl font-bold text-blue-600">{data.auditorias}</p>
           </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-lg font-semibold">📂 Documentos revisados</h2>
-            <p className="text-3xl font-bold mt-2">34</p>
-            <p className="text-sm text-gray-500">Norma ISO 9001</p>
+          <div className="bg-white shadow-md rounded-xl p-6 text-center">
+            <h3 className="text-lg font-semibold">No Conformidades</h3>
+            <p className="text-3xl font-bold text-red-600">{data.noConformidades}</p>
           </div>
         </div>
 
-        {/* Gráfico */}
-        <div className="bg-white p-6 rounded-xl shadow-md">
-          <h2 className="text-lg font-semibold mb-4">Evolución de Cumplimiento ISO</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data}>
-              <Line type="monotone" dataKey="cumplimiento" stroke="#2563eb" strokeWidth={3} />
-              <CartesianGrid stroke="#e5e7eb" strokeDasharray="5 5" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        {/* Gráfico de barras */}
-        <div className="bg-white p-6 rounded-xl shadow-md mt-6">
-        <h2 className="text-lg font-semibold mb-4">Capacitaciones completadas por mes</h2>
-        <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={[
-            { name: "Ene", capacitaciones: 4 },
-            { name: "Feb", capacitaciones: 6 },
-            { name: "Mar", capacitaciones: 5 },
-            { name: "Abr", capacitaciones: 8 },
-            { name: "May", capacitaciones: 7 },
-            ]}>
-            <CartesianGrid stroke="#e5e7eb" strokeDasharray="5 5" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="capacitaciones" fill="#10b981" />
-            </BarChart>
-        </ResponsiveContainer>
-        </div>
+        {/* Gráficos */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Line Chart */}
+          <div className="bg-white shadow-md rounded-xl p-6">
+            <h3 className="text-lg font-semibold mb-4">Evolución Cumplimiento</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={data.historico}>
+                <CartesianGrid stroke="#ccc" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="cumplimiento" stroke="#2563eb" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
 
-
+          {/* Bar Chart */}
+          <div className="bg-white shadow-md rounded-xl p-6">
+            <h3 className="text-lg font-semibold mb-4">No Conformidades</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.historico}>
+                <CartesianGrid stroke="#ccc" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="noConformidades" fill="#dc2626" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </main>
     </div>
   );
