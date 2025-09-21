@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -7,89 +6,74 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
-  BarChart,
-  Bar,
   ResponsiveContainer,
 } from "recharts";
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/dashboard") // ⚠️ Ajusta el puerto si tu backend usa otro
-      .then((res) => setData(res.data))
-      .catch((err) => console.error(err));
+    fetch("http://localhost:5000/api/dashboard")
+      .then((res) => res.json())
+      .then((json) => {
+        setData(json.kpis);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error al cargar datos:", err);
+        setLoading(false);
+      });
   }, []);
 
-  if (!data) return <p className="p-6">⏳ Cargando datos...</p>;
+  if (loading) return <p className="text-center text-lg">⏳ Cargando datos...</p>;
+  if (!data) return <p className="text-center text-red-500">❌ No hay datos disponibles.</p>;
+
+  // Datos simulados para el gráfico
+  const chartData = [
+    { mes: "Enero", auditorias: 2, proyectos: 3, capacitaciones: 1 },
+    { mes: "Febrero", auditorias: 1, proyectos: 4, capacitaciones: 2 },
+    { mes: "Marzo", auditorias: 3, proyectos: 2, capacitaciones: 4 },
+    { mes: "Abril", auditorias: 2, proyectos: 3, capacitaciones: 3 },
+  ];
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-blue-800 text-white p-6">
-        <h2 className="text-2xl font-bold mb-6">ISO9001 App</h2>
-        <nav className="space-y-3">
-          <a href="#" className="block hover:text-blue-300">📊 Dashboard</a>
-          <a href="#" className="block hover:text-blue-300">📝 Auditorías</a>
-          <a href="#" className="block hover:text-blue-300">👤 Usuarios</a>
-          <a href="#" className="block hover:text-blue-300">⚙️ Configuración</a>
-        </nav>
-      </aside>
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold text-center">📊 Dashboard ISO 9001</h1>
 
-      {/* Contenido principal */}
-      <main className="flex-1 p-8">
-        <h1 className="text-3xl font-bold mb-6">Panel de Control</h1>
-
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white shadow-md rounded-xl p-6 text-center">
-            <h3 className="text-lg font-semibold">Cumplimiento (%)</h3>
-            <p className="text-3xl font-bold text-green-600">{data.cumplimiento}%</p>
-          </div>
-          <div className="bg-white shadow-md rounded-xl p-6 text-center">
-            <h3 className="text-lg font-semibold">Auditorías</h3>
-            <p className="text-3xl font-bold text-blue-600">{data.auditorias}</p>
-          </div>
-          <div className="bg-white shadow-md rounded-xl p-6 text-center">
-            <h3 className="text-lg font-semibold">No Conformidades</h3>
-            <p className="text-3xl font-bold text-red-600">{data.noConformidades}</p>
-          </div>
+      {/* KPIs en Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white shadow-md rounded-xl p-4 text-center">
+          <h2 className="text-lg font-semibold">Auditorías</h2>
+          <p className="text-3xl font-bold text-blue-600">{data.auditorias}</p>
         </div>
 
-        {/* Gráficos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Line Chart */}
-          <div className="bg-white shadow-md rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-4">Evolución Cumplimiento</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={data.historico}>
-                <CartesianGrid stroke="#ccc" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="cumplimiento" stroke="#2563eb" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Bar Chart */}
-          <div className="bg-white shadow-md rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-4">No Conformidades</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data.historico}>
-                <CartesianGrid stroke="#ccc" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="noConformidades" fill="#dc2626" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+        <div className="bg-white shadow-md rounded-xl p-4 text-center">
+          <h2 className="text-lg font-semibold">Proyectos</h2>
+          <p className="text-3xl font-bold text-green-600">{data.proyectos}</p>
         </div>
-      </main>
+
+        <div className="bg-white shadow-md rounded-xl p-4 text-center">
+          <h2 className="text-lg font-semibold">Capacitaciones</h2>
+          <p className="text-3xl font-bold text-purple-600">{data.capacitaciones}</p>
+        </div>
+      </div>
+
+      {/* Gráfico de Líneas */}
+      <div className="bg-white shadow-md rounded-xl p-6">
+        <h2 className="text-lg font-semibold mb-4">Evolución Mensual</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="mes" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="auditorias" stroke="#1d4ed8" />
+            <Line type="monotone" dataKey="proyectos" stroke="#16a34a" />
+            <Line type="monotone" dataKey="capacitaciones" stroke="#9333ea" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

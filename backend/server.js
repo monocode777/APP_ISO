@@ -1,18 +1,28 @@
+// backend/server.js
 import express from "express";
 import cors from "cors";
-import dashboardRoutes from "./routes/dashboard.js";
-app.use("/api/dashboard", dashboardRoutes);
+import morgan from "morgan";
+
+// ✅ Importamos rutas desde src
+import dashboardRoutes from "./src/routes/dashboard.js";
 
 const app = express();
+
+// 🔧 Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(morgan("dev"));
 
-// 🔹 Ruta de prueba
-app.get("/", (req, res) => {
-  res.json({ message: "✅ Backend funcionando con Express" });
-});
+// 📌 Rutas
+app.use("/api/dashboard", dashboardRoutes);
 
+// Puerto
 const PORT = process.env.PORT || 5000;
+
+// 🚀 Servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+});
+app.get("/", (req, res) => {
+  res.send("✅ API ISO9001 corriendo...");
 });
